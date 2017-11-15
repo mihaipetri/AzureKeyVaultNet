@@ -51,7 +51,8 @@ namespace AzureKeyVaultNet.Controllers
                     };
 
                     var keyVaultSecretValue = await keyVaultClient.GetSecretAsync(secret.Identifier.Identifier).ConfigureAwait(false);
-                    secretModel.Value = keyVaultSecretValue.Value;
+                    //secretModel.Value = keyVaultSecretValue.Value;
+                    secretModel.Value = keyVaultSecretValue.Value.Length > 30 ? keyVaultSecretValue.Value.Substring(0,30) : keyVaultSecretValue.Value;
                     secretModel.Version = keyVaultSecretValue.SecretIdentifier.Version;
                     secretModelList.Add(secretModel);
                 }
