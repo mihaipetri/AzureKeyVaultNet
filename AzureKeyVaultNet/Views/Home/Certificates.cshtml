@@ -1,0 +1,31 @@
+﻿@model Microsoft.Rest.Azure.IPage<Microsoft.Azure.KeyVault.Models.CertificateItem>
+@{
+    ViewBag.Title = "Key Vault Certificates";
+}
+
+<div class="container">
+    <h2>@ViewBag.Title</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Url</th>
+                <th>Version</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cert in Model)
+            {
+                <tr>
+                    <td>@cert.Identifier.Name</td>
+                    <td>@cert.Identifier.Identifier</td>
+                    <td>@cert.Identifier.Version</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div>
+    @ViewBag.Error
+</div>

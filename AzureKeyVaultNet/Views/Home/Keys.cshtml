@@ -1,0 +1,31 @@
+﻿@model Microsoft.Rest.Azure.IPage<Microsoft.Azure.KeyVault.Models.KeyItem>
+@{
+    ViewBag.Title = "Key Vault Keys";
+}
+
+<div class="container">
+    <h2>@ViewBag.Title</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Url</th>
+                <th>Version</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var key in Model)
+            {
+                <tr>
+                    <td>@key.Identifier.Name</td>
+                    <td>@key.Identifier.Identifier</td>
+                    <td>@key.Identifier.Version</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div>
+    @ViewBag.Error
+</div>
