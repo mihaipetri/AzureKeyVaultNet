@@ -1,8 +1,10 @@
 ﻿using AzureKeyVaultNet.Models;
 using Microsoft.Azure.KeyVault;
+using Microsoft.Azure.KeyVault.Models;
 using Microsoft.Azure.Services.AppAuthentication;
 using System;
 using System.Configuration;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace AzureKeyVaultNet.Controllers
@@ -18,8 +20,8 @@ namespace AzureKeyVaultNet.Controllers
         {
             try
             {
-                //azureServiceTokenProvider = new AzureServiceTokenProvider();
-                //keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+                azureServiceTokenProvider = new AzureServiceTokenProvider();
+                keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
             }
             catch (Exception ex)
             {
@@ -40,14 +42,14 @@ namespace AzureKeyVaultNet.Controllers
         }
 
         [HttpPost]
-        public ActionResult Encryption(EncryptModel model)
+        public async Task<ActionResult> Encryption(EncryptModel model)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    model.CipherText = "CipherText";
-                    ModelState.Clear();
+                    KeyOperationResult operationResult = await keyVaultClient.EncryptAsync(azureKeyVaultUrl + "/keys/" + model.Key, Microsoft.Azure.KeyVault.WebKey.JsonWebKeyEncryptionAlgorithm.RSAOAEP, System.Text.Encoding.UTF8.GetBytes(model.PlainText)).ConfigureAwait(false);
+                    model.CipherText = Convert.ToBase64String(operationResult.Result);
                 }
             }
             catch (Exception ex)
@@ -55,6 +57,7 @@ namespace AzureKeyVaultNet.Controllers
                 errorMessage = $"{errorMessage} {ex.Message}";
             }
 
+            ModelState.Clear();
             return View(model);
         }
 
@@ -71,14 +74,14 @@ namespace AzureKeyVaultNet.Controllers
         }
 
         [HttpPost]
-        public ActionResult Decryption(EncryptModel model)
+        public async Task<ActionResult> Decryption(EncryptModel model)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    model.PlainText = "PlainText";
-                    ModelState.Clear();
+                    KeyOperationResult operationResult = await keyVaultClient.DecryptAsync(azureKeyVaultUrl + "/keys/" + model.Key, Microsoft.Azure.KeyVault.WebKey.JsonWebKeyEncryptionAlgorithm.RSAOAEP, Convert.FromBase64String(model.CipherText)).ConfigureAwait(false);
+                    model.PlainText = System.Text.Encoding.UTF8.GetString(operationResult.Result);                   
                 }
             }
             catch (Exception ex)
@@ -86,6 +89,7 @@ namespace AzureKeyVaultNet.Controllers
                 errorMessage = $"{errorMessage} {ex.Message}";
             }
 
+            ModelState.Clear();
             return View(model);
         }
     }
